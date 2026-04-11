@@ -244,3 +244,137 @@ TRUNCATE TABLE
     solicitud_consulta
 RESTART IDENTITY CASCADE;
 */
+
+-- =====================================================
+-- CONSTRAINT VALIDATION TESTS
+-- Uncomment one test at a time
+-- Expected result: INSERT should FAIL
+-- =====================================================
+
+/*
+-- Invalid user status
+INSERT INTO usuario (
+    id_rol,
+    correo,
+    password_hash,
+    estado
+) VALUES (
+    2,
+    'badstatus@test.com',
+    'hash_demo',
+    'Banana'
+);
+*/
+
+/*
+-- Invalid appointment time range
+INSERT INTO cita (
+    id_paciente,
+    id_personal,
+    id_servicio,
+    fecha,
+    hora_inicio,
+    hora_fin,
+    motivo,
+    estado
+) VALUES (
+    1,
+    1,
+    1,
+    '2026-05-01',
+    '10:00',
+    '09:00',
+    'Horario inválido',
+    'Confirmada'
+);
+*/
+
+/*
+-- Invalid appointment status
+INSERT INTO cita (
+    id_paciente,
+    id_personal,
+    id_servicio,
+    fecha,
+    hora_inicio,
+    hora_fin,
+    motivo,
+    estado
+) VALUES (
+    1,
+    1,
+    1,
+    '2026-05-01',
+    '10:00',
+    '11:00',
+    'Estado inválido',
+    'Banana'
+);
+*/
+
+/*
+-- Negative age
+INSERT INTO solicitud_consulta (
+    id_centro,
+    nombre_solicitante,
+    celular,
+    nombre_paciente,
+    edad_paciente,
+    motivo_consulta
+) VALUES (
+    1,
+    'Maria',
+    '70000000',
+    'Juan',
+    -5,
+    'Consulta inicial'
+);
+*/
+
+/*
+-- Invalid recurring schedule dates
+INSERT INTO agenda_recurrente (
+    id_paciente,
+    id_personal,
+    id_servicio,
+    hora_inicio,
+    hora_fin,
+    fecha_inicio,
+    fecha_fin,
+    estado
+) VALUES (
+    1,
+    1,
+    1,
+    '15:00',
+    '16:00',
+    '2026-06-10',
+    '2026-06-01',
+    'Activo'
+);
+*/
+
+-- =====================================================
+-- OPTIONAL CLEANUP AFTER CONSTRAINT TESTS
+-- =====================================================
+
+/*
+TRUNCATE TABLE
+    sesion,
+    cita,
+    personal_servicio,
+    paciente_tutor,
+    agenda_recurrente_dia,
+    agenda_recurrente,
+    personal,
+    usuario,
+    servicio,
+    tutor,
+    paciente,
+    contenido_web,
+    valor_centro,
+    red_social,
+    instalacion,
+    solicitud_consulta
+RESTART IDENTITY CASCADE;
+*/
