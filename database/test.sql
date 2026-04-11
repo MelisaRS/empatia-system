@@ -30,3 +30,6 @@ SELECT * FROM paciente_tutor;
 
 SELECT * FROM servicio;
 SELECT * FROM personal_servicio;
+
+SELECT * FROM cita;
+SELECT * FROM sesion;

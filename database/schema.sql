@@ -107,3 +107,46 @@ CREATE TABLE personal_servicio (
         FOREIGN KEY (id_servicio)
         REFERENCES servicio(id_servicio)
 );
+
+-- Appointments table
+CREATE TABLE cita (
+    id_cita SERIAL PRIMARY KEY,
+
+    id_paciente INT NOT NULL,
+    id_personal INT NOT NULL,
+    id_servicio INT NOT NULL,
+
+    fecha DATE NOT NULL,
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+
+    motivo TEXT,
+    estado VARCHAR(20) NOT NULL,
+
+    CONSTRAINT fk_cita_paciente
+        FOREIGN KEY (id_paciente)
+        REFERENCES paciente(id_paciente),
+
+    CONSTRAINT fk_cita_personal
+        FOREIGN KEY (id_personal)
+        REFERENCES personal(id_personal),
+
+    CONSTRAINT fk_cita_servicio
+        FOREIGN KEY (id_servicio)
+        REFERENCES servicio(id_servicio)
+);
+
+-- Sessions table
+CREATE TABLE sesion (
+    id_sesion SERIAL PRIMARY KEY,
+
+    id_cita INT UNIQUE NOT NULL,
+
+    progreso TEXT,
+    observacion TEXT,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_sesion_cita
+        FOREIGN KEY (id_cita)
+        REFERENCES cita(id_cita)
+);
