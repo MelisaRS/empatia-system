@@ -193,6 +193,7 @@ CREATE TABLE agenda_recurrente_dia (
         REFERENCES agenda_recurrente(id_agenda_recurrente)
 );
 
+-- Add recurring schedule relation to appointments
 ALTER TABLE cita
 ADD COLUMN id_agenda_recurrente INT;
 
@@ -200,3 +201,98 @@ ALTER TABLE cita
 ADD CONSTRAINT fk_cita_agenda
 FOREIGN KEY (id_agenda_recurrente)
 REFERENCES agenda_recurrente(id_agenda_recurrente);
+
+-- Centers table
+CREATE TABLE centro (
+    id_centro SERIAL PRIMARY KEY,
+    nombre VARCHAR(150) NOT NULL,
+    direccion TEXT,
+    horario VARCHAR(150),
+    correo VARCHAR(100),
+    telefono VARCHAR(20),
+    link_ubicacion TEXT
+);
+
+-- Add center relation to personnel
+ALTER TABLE personal
+ADD COLUMN id_centro INT;
+
+ALTER TABLE personal
+ADD CONSTRAINT fk_personal_centro
+FOREIGN KEY (id_centro)
+REFERENCES centro(id_centro);
+
+-- Website content table
+CREATE TABLE contenido_web (
+    id_contenido_web SERIAL PRIMARY KEY,
+    id_centro INT UNIQUE NOT NULL,
+
+    sobre_nosotros TEXT,
+    sobre_empatia TEXT,
+    mision TEXT,
+    vision TEXT,
+
+    CONSTRAINT fk_cw_centro
+        FOREIGN KEY (id_centro)
+        REFERENCES centro(id_centro)
+);
+
+-- Center values table
+CREATE TABLE valor_centro (
+    id_valor SERIAL PRIMARY KEY,
+    id_centro INT NOT NULL,
+
+    titulo VARCHAR(100) NOT NULL,
+    descripcion TEXT,
+    orden_visual INT,
+
+    CONSTRAINT fk_valor_centro
+        FOREIGN KEY (id_centro)
+        REFERENCES centro(id_centro)
+);
+
+-- Social networks table
+CREATE TABLE red_social (
+    id_red_social SERIAL PRIMARY KEY,
+    id_centro INT NOT NULL,
+
+    nombre_red VARCHAR(100),
+    plataforma VARCHAR(50),
+    link TEXT NOT NULL,
+
+    CONSTRAINT fk_rs_centro
+        FOREIGN KEY (id_centro)
+        REFERENCES centro(id_centro)
+);
+
+-- Facilities table
+CREATE TABLE instalacion (
+    id_instalacion SERIAL PRIMARY KEY,
+    id_centro INT NOT NULL,
+
+    titulo VARCHAR(100),
+    descripcion TEXT,
+    url_imagen_instalacion TEXT,
+
+    CONSTRAINT fk_inst_centro
+        FOREIGN KEY (id_centro)
+        REFERENCES centro(id_centro)
+);
+
+-- Contact requests table
+CREATE TABLE solicitud_consulta (
+    id_solicitud_consulta SERIAL PRIMARY KEY,
+    id_centro INT NOT NULL,
+
+    nombre_solicitante VARCHAR(100) NOT NULL,
+    celular VARCHAR(20),
+    nombre_paciente VARCHAR(100),
+    edad_paciente INT,
+    motivo_consulta TEXT,
+
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_sc_centro
+        FOREIGN KEY (id_centro)
+        REFERENCES centro(id_centro)
+);
