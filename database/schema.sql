@@ -150,3 +150,53 @@ CREATE TABLE sesion (
         FOREIGN KEY (id_cita)
         REFERENCES cita(id_cita)
 );
+
+-- Recurring schedules table
+CREATE TABLE agenda_recurrente (
+    id_agenda_recurrente SERIAL PRIMARY KEY,
+
+    id_paciente INT NOT NULL,
+    id_personal INT NOT NULL,
+    id_servicio INT NOT NULL,
+
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+
+    fecha_inicio DATE NOT NULL,
+    fecha_fin DATE,
+
+    estado VARCHAR(20),
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_ar_paciente
+        FOREIGN KEY (id_paciente)
+        REFERENCES paciente(id_paciente),
+
+    CONSTRAINT fk_ar_personal
+        FOREIGN KEY (id_personal)
+        REFERENCES personal(id_personal),
+
+    CONSTRAINT fk_ar_servicio
+        FOREIGN KEY (id_servicio)
+        REFERENCES servicio(id_servicio)
+);
+
+-- Recurring schedule days table
+CREATE TABLE agenda_recurrente_dia (
+    id_agenda_recurrente INT NOT NULL,
+    dia_semana VARCHAR(20) NOT NULL,
+
+    PRIMARY KEY (id_agenda_recurrente, dia_semana),
+
+    CONSTRAINT fk_ard_agenda
+        FOREIGN KEY (id_agenda_recurrente)
+        REFERENCES agenda_recurrente(id_agenda_recurrente)
+);
+
+ALTER TABLE cita
+ADD COLUMN id_agenda_recurrente INT;
+
+ALTER TABLE cita
+ADD CONSTRAINT fk_cita_agenda
+FOREIGN KEY (id_agenda_recurrente)
+REFERENCES agenda_recurrente(id_agenda_recurrente);

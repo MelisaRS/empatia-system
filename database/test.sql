@@ -33,3 +33,6 @@ SELECT * FROM personal_servicio;
 
 SELECT * FROM cita;
 SELECT * FROM sesion;
+
+SELECT * FROM agenda_recurrente;
+SELECT * FROM agenda_recurrente_dia;
