@@ -83,3 +83,27 @@ CREATE TABLE paciente_tutor (
         FOREIGN KEY (id_tutor)
         REFERENCES tutor(id_tutor)
 );
+
+-- Services table
+CREATE TABLE servicio (
+    id_servicio SERIAL PRIMARY KEY,
+    nombre_servicio VARCHAR(100) NOT NULL UNIQUE,
+    descripcion TEXT,
+    url_imagen_servicio TEXT
+);
+
+-- Personnel - Service relationship table
+CREATE TABLE personal_servicio (
+    id_personal INT NOT NULL,
+    id_servicio INT NOT NULL,
+
+    PRIMARY KEY (id_personal, id_servicio),
+
+    CONSTRAINT fk_ps_personal
+        FOREIGN KEY (id_personal)
+        REFERENCES personal(id_personal),
+
+    CONSTRAINT fk_ps_servicio
+        FOREIGN KEY (id_servicio)
+        REFERENCES servicio(id_servicio)
+);

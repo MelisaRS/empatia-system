@@ -27,3 +27,6 @@ WHERE nombre_rol IN ('Administrador', 'Terapeuta Socio', 'Terapeuta No Socio');
 SELECT * FROM paciente;
 SELECT * FROM tutor;
 SELECT * FROM paciente_tutor;
+
+SELECT * FROM servicio;
+SELECT * FROM personal_servicio;
