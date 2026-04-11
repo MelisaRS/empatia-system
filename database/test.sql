@@ -23,3 +23,7 @@ WHERE nombre_rol IN ('Administrador', 'Terapeuta Socio', 'Terapeuta No Socio');
 
 -- Dangerous: removes table structure
 --DROP TABLE personal;
+
+SELECT * FROM paciente;
+SELECT * FROM tutor;
+SELECT * FROM paciente_tutor;

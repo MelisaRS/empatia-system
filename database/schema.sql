@@ -1,6 +1,6 @@
 -- =====================================================
 -- Empatia System - Database Schema
--- Core authentication and personnel tables
+-- Main relational structure of the system
 -- =====================================================
 
 -- Roles table
@@ -40,4 +40,46 @@ CREATE TABLE personal (
     CONSTRAINT fk_personal_usuario
         FOREIGN KEY (id_usuario)
         REFERENCES usuario(id_usuario)
+);
+
+-- Patients table
+CREATE TABLE paciente (
+    id_paciente SERIAL PRIMARY KEY,
+    nombres VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
+    fecha_nacimiento DATE,
+    estado_actual VARCHAR(20),
+    genero VARCHAR(20),
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tutors table
+CREATE TABLE tutor (
+    id_tutor SERIAL PRIMARY KEY,
+    nombres VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
+    telefono VARCHAR(20),
+    correo VARCHAR(100),
+    fecha_nacimiento DATE,
+    genero VARCHAR(20)
+);
+
+-- Patient - Tutor relationship table
+CREATE TABLE paciente_tutor (
+    id_paciente INT NOT NULL,
+    id_tutor INT NOT NULL,
+
+    parentesco VARCHAR(50) NOT NULL,
+    tutor_principal BOOLEAN DEFAULT FALSE,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (id_paciente, id_tutor),
+
+    CONSTRAINT fk_pt_paciente
+        FOREIGN KEY (id_paciente)
+        REFERENCES paciente(id_paciente),
+
+    CONSTRAINT fk_pt_tutor
+        FOREIGN KEY (id_tutor)
+        REFERENCES tutor(id_tutor)
 );
