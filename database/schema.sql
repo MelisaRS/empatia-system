@@ -13,6 +13,7 @@ CREATE TABLE rol (
 CREATE TABLE usuario (
     id_usuario SERIAL PRIMARY KEY,
     id_rol INT NOT NULL,
+	
     correo VARCHAR(100) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     estado VARCHAR(20) NOT NULL,
@@ -27,6 +28,7 @@ CREATE TABLE usuario (
 CREATE TABLE personal (
     id_personal SERIAL PRIMARY KEY,
     id_usuario INT UNIQUE,
+	
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
     telefono VARCHAR(20),
@@ -45,6 +47,7 @@ CREATE TABLE personal (
 -- Patients table
 CREATE TABLE paciente (
     id_paciente SERIAL PRIMARY KEY,
+	
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
     fecha_nacimiento DATE,
@@ -56,6 +59,7 @@ CREATE TABLE paciente (
 -- Tutors table
 CREATE TABLE tutor (
     id_tutor SERIAL PRIMARY KEY,
+	
     nombres VARCHAR(100) NOT NULL,
     apellidos VARCHAR(100) NOT NULL,
     telefono VARCHAR(20),
@@ -87,6 +91,7 @@ CREATE TABLE paciente_tutor (
 -- Services table
 CREATE TABLE servicio (
     id_servicio SERIAL PRIMARY KEY,
+	
     nombre_servicio VARCHAR(100) NOT NULL UNIQUE,
     descripcion TEXT,
     url_imagen_servicio TEXT
@@ -206,6 +211,7 @@ REFERENCES agenda_recurrente(id_agenda_recurrente);
 CREATE TABLE centro (
     id_centro SERIAL PRIMARY KEY,
     nombre VARCHAR(150) NOT NULL,
+	
     direccion TEXT,
     horario VARCHAR(150),
     correo VARCHAR(100),
@@ -258,7 +264,7 @@ CREATE TABLE red_social (
 
     nombre_red VARCHAR(100),
     plataforma VARCHAR(50),
-    link TEXT NOT NULL,
+    link_red_social TEXT NOT NULL,
 
     CONSTRAINT fk_rs_centro
         FOREIGN KEY (id_centro)

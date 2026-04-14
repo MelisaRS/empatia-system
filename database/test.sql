@@ -26,6 +26,7 @@ WHERE nombre_rol IN ('Administrador', 'Terapeuta Socio', 'Terapeuta No Socio');
 -- Dangerous: removes table structure
 -- DROP TABLE personal;
 -- DROP TABLE solicitud_consulta;
+-- DROP TABLE red_social;
 
 -- Patients and family relations
 SELECT * FROM paciente;
