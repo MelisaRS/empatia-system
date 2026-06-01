@@ -36,6 +36,39 @@ app.get('/health-db', async (req, res) => {
   }
 })
 
+app.get('/patients', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM paciente')
+
+    res.json(result.rows)
+  } catch (error) {
+    console.error(error)
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Error obteniendo pacientes'
+    })
+  }
+})
+
+app.get('/patients-structure', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT column_name, data_type
+      FROM information_schema.columns
+      WHERE table_name = 'paciente'
+    `)
+
+    res.json(result.rows)
+  } catch (error) {
+    console.error(error)
+
+    res.status(500).json({
+      error: 'Error obteniendo estructura'
+    })
+  }
+})
+
 pool.query('SELECT NOW()', (err, result) => {
   if (err) {
     console.error('Error conectando PostgreSQL', err)
