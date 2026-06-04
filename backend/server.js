@@ -7,12 +7,12 @@ const app = express()
 const PORT = 3000
 
 app.get('/', (req, res) => {
-  res.send('Hola mundo desde Express - Servidor Express funcionando')
+  res.send('Express server running')
 })
 
 app.get('/api', (req, res) => {
   res.json({
-    message: 'Servidor funcionando, API funcionando correctamente',
+    message: 'API is running successfully',
     status: 'ok'
   })
 })
@@ -38,7 +38,7 @@ app.get('/health-db', async (req, res) => {
 
 app.get('/patients', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM paciente')
+    const result = await pool.query('SELECT * FROM patient')
 
     res.json(result.rows)
   } catch (error) {
@@ -46,7 +46,7 @@ app.get('/patients', async (req, res) => {
 
     res.status(500).json({
       status: 'error',
-      message: 'Error obteniendo pacientes'
+      message: 'Error fetching patients'
     })
   }
 })
@@ -56,7 +56,7 @@ app.get('/patients-structure', async (req, res) => {
     const result = await pool.query(`
       SELECT column_name, data_type
       FROM information_schema.columns
-      WHERE table_name = 'paciente'
+      WHERE table_name = 'patient'
     `)
 
     res.json(result.rows)
@@ -64,21 +64,20 @@ app.get('/patients-structure', async (req, res) => {
     console.error(error)
 
     res.status(500).json({
-      error: 'Error obteniendo estructura'
+      error: 'Error fetching table structure'
     })
   }
 })
 
 pool.query('SELECT NOW()', (err, result) => {
   if (err) {
-    console.error('Error conectando PostgreSQL', err)
+    console.error('PostgreSQL connection error', err)
   } else {
-    console.log('PostgreSQL conectado')
+    console.log('PostgreSQL connected')
     console.log(result.rows)
   }
 })
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en puerto ${PORT} 
-                \nServidor corriendo en http://localhost:${PORT}`)
+  console.log(`Server running on port ${PORT}`)
 })
