@@ -4,301 +4,330 @@
 -- =====================================================
 
 -- Roles table
-CREATE TABLE rol (
-    id_rol SERIAL PRIMARY KEY,
-    nombre_rol VARCHAR(50) NOT NULL UNIQUE
+CREATE TABLE roles (
+    role_id SERIAL PRIMARY KEY,
+    role_name VARCHAR(50) NOT NULL UNIQUE
 );
 
 -- Users table
-CREATE TABLE usuario (
-    id_usuario SERIAL PRIMARY KEY,
-    id_rol INT NOT NULL,
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    role_id INT NOT NULL,
 	
-    correo VARCHAR(100) NOT NULL UNIQUE,
+    email VARCHAR(100) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
-    estado VARCHAR(20) NOT NULL,
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_usuario_rol
-        FOREIGN KEY (id_rol)
-        REFERENCES rol(id_rol)
+    CONSTRAINT fk_users_roles
+        FOREIGN KEY (role_id)
+        REFERENCES roles(role_id)
 );
 
--- Personnel table
-CREATE TABLE personal (
-    id_personal SERIAL PRIMARY KEY,
-    id_usuario INT UNIQUE,
+-- Staff table
+CREATE TABLE staff (
+    staff_id SERIAL PRIMARY KEY,
+    user_id INT UNIQUE,
 	
-    nombres VARCHAR(100) NOT NULL,
-    apellidos VARCHAR(100) NOT NULL,
-    telefono VARCHAR(20),
-    fecha_nacimiento DATE,
-    tipo_personal VARCHAR(50),
-    tipo_vinculacion VARCHAR(50),
-    estado_actual VARCHAR(20),
-    genero VARCHAR(20),
-    url_imagen_personal TEXT,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    birth_date DATE,
+    staff_type VARCHAR(50),
+    affiliation_type VARCHAR(50),
+	
+    current_status VARCHAR(20),
+    gender VARCHAR(20),
+	
+    staff_image_url TEXT,
 
-    CONSTRAINT fk_personal_usuario
-        FOREIGN KEY (id_usuario)
-        REFERENCES usuario(id_usuario)
+    CONSTRAINT fk_staff_users
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
 );
 
 -- Patients table
-CREATE TABLE paciente (
-    id_paciente SERIAL PRIMARY KEY,
+CREATE TABLE patient (
+    patient_id SERIAL PRIMARY KEY,
 	
-    nombres VARCHAR(100) NOT NULL,
-    apellidos VARCHAR(100) NOT NULL,
-    fecha_nacimiento DATE,
-    estado_actual VARCHAR(20),
-    genero VARCHAR(20),
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+	
+    birth_date DATE,
+	
+    current_status VARCHAR(20),
+    gender VARCHAR(20),
+	
+    registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tutors table
-CREATE TABLE tutor (
-    id_tutor SERIAL PRIMARY KEY,
+-- Guardians table
+CREATE TABLE guardian (
+    guardian_id SERIAL PRIMARY KEY,
 	
-    nombres VARCHAR(100) NOT NULL,
-    apellidos VARCHAR(100) NOT NULL,
-    telefono VARCHAR(20),
-    correo VARCHAR(100),
-    fecha_nacimiento DATE,
-    genero VARCHAR(20)
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+	
+    phone VARCHAR(20),
+    email VARCHAR(100),
+	
+    birth_date DATE,
+    gender VARCHAR(20)
 );
 
--- Patient - Tutor relationship table
-CREATE TABLE paciente_tutor (
-    id_paciente INT NOT NULL,
-    id_tutor INT NOT NULL,
+-- Patient - Guardian relationship table
+CREATE TABLE patient_guardian (
+    patient_id INT NOT NULL,
+    guardian_id INT NOT NULL,
 
-    parentesco VARCHAR(50) NOT NULL,
-    tutor_principal BOOLEAN DEFAULT FALSE,
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    relationship VARCHAR(50) NOT NULL,
+    primary_guardian BOOLEAN DEFAULT FALSE,
+	
+    registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    PRIMARY KEY (id_paciente, id_tutor),
+    PRIMARY KEY (patient_id, guardian_id),
 
-    CONSTRAINT fk_pt_paciente
-        FOREIGN KEY (id_paciente)
-        REFERENCES paciente(id_paciente),
+    CONSTRAINT fk_pg_patient
+        FOREIGN KEY (patient_id)
+        REFERENCES patient(patient_id),
 
-    CONSTRAINT fk_pt_tutor
-        FOREIGN KEY (id_tutor)
-        REFERENCES tutor(id_tutor)
+    CONSTRAINT fk_pg_guardian
+        FOREIGN KEY (guardian_id)
+        REFERENCES guardian(guardian_id)
 );
 
 -- Services table
-CREATE TABLE servicio (
-    id_servicio SERIAL PRIMARY KEY,
+CREATE TABLE service (
+    service_id SERIAL PRIMARY KEY,
 	
-    nombre_servicio VARCHAR(100) NOT NULL UNIQUE,
-    descripcion TEXT,
-    url_imagen_servicio TEXT
+    service_name VARCHAR(100) NOT NULL UNIQUE,
+    description TEXT,
+	
+    service_image_url TEXT
 );
 
--- Personnel - Service relationship table
-CREATE TABLE personal_servicio (
-    id_personal INT NOT NULL,
-    id_servicio INT NOT NULL,
+--  Staff - Service relationship table
+CREATE TABLE staff_service (
+    staff_id INT NOT NULL,
+    service_id INT NOT NULL,
 
-    PRIMARY KEY (id_personal, id_servicio),
+    PRIMARY KEY (staff_id, service_id),
 
-    CONSTRAINT fk_ps_personal
-        FOREIGN KEY (id_personal)
-        REFERENCES personal(id_personal),
+    CONSTRAINT fk_ss_staff
+        FOREIGN KEY (staff_id)
+        REFERENCES staff(staff_id),
 
-    CONSTRAINT fk_ps_servicio
-        FOREIGN KEY (id_servicio)
-        REFERENCES servicio(id_servicio)
+    CONSTRAINT fk_ss_service
+        FOREIGN KEY (service_id)
+        REFERENCES service(service_id)
 );
 
 -- Appointments table
-CREATE TABLE cita (
-    id_cita SERIAL PRIMARY KEY,
+CREATE TABLE appointment (
+    appointment_id SERIAL PRIMARY KEY,
 
-    id_paciente INT NOT NULL,
-    id_personal INT NOT NULL,
-    id_servicio INT NOT NULL,
+    patient_id INT NOT NULL,
+    staff_id INT NOT NULL,
+    service_id INT NOT NULL,
 
-    fecha DATE NOT NULL,
-    hora_inicio TIME NOT NULL,
-    hora_fin TIME NOT NULL,
+    appointment_date DATE NOT NULL,
+	
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
 
-    motivo TEXT,
-    estado VARCHAR(20) NOT NULL,
+    reason TEXT,
+	
+    status VARCHAR(20) NOT NULL,
 
-    CONSTRAINT fk_cita_paciente
-        FOREIGN KEY (id_paciente)
-        REFERENCES paciente(id_paciente),
+    CONSTRAINT fk_appointment_patient
+        FOREIGN KEY (patient_id)
+        REFERENCES patient(patient_id),
 
-    CONSTRAINT fk_cita_personal
-        FOREIGN KEY (id_personal)
-        REFERENCES personal(id_personal),
+    CONSTRAINT fk_appointment_staff
+        FOREIGN KEY (staff_id)
+        REFERENCES staff(staff_id),
 
-    CONSTRAINT fk_cita_servicio
-        FOREIGN KEY (id_servicio)
-        REFERENCES servicio(id_servicio)
+    CONSTRAINT fk_appointment_service
+        FOREIGN KEY (service_id)
+        REFERENCES service(service_id)
 );
 
--- Sessions table
-CREATE TABLE sesion (
-    id_sesion SERIAL PRIMARY KEY,
+-- Therapy sessions table
+CREATE TABLE therapy_session (
+    therapy_session_id SERIAL PRIMARY KEY,
 
-    id_cita INT UNIQUE NOT NULL,
+    appointment_id INT UNIQUE NOT NULL,
 
-    progreso TEXT,
-    observacion TEXT,
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    progress TEXT,
+    observation TEXT,
+	
+    registered_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_sesion_cita
-        FOREIGN KEY (id_cita)
-        REFERENCES cita(id_cita)
+    CONSTRAINT fk_therapy_session_appointment
+        FOREIGN KEY (appointment_id)
+        REFERENCES appointment(appointment_id)
 );
 
 -- Recurring schedules table
-CREATE TABLE agenda_recurrente (
-    id_agenda_recurrente SERIAL PRIMARY KEY,
+CREATE TABLE recurring_schedule (
+    recurring_schedule_id SERIAL PRIMARY KEY,
 
-    id_paciente INT NOT NULL,
-    id_personal INT NOT NULL,
-    id_servicio INT NOT NULL,
+    patient_id INT NOT NULL,
+    staff_id INT NOT NULL,
+    service_id INT NOT NULL,
 
-    hora_inicio TIME NOT NULL,
-    hora_fin TIME NOT NULL,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
 
-    fecha_inicio DATE NOT NULL,
-    fecha_fin DATE,
+    start_date DATE NOT NULL,
+    end_date DATE,
 
-    estado VARCHAR(20),
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(20) NOT NULL,
+	
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_ar_paciente
-        FOREIGN KEY (id_paciente)
-        REFERENCES paciente(id_paciente),
+    CONSTRAINT fk_rs_patient
+        FOREIGN KEY (patient_id)
+        REFERENCES patient(patient_id),
 
-    CONSTRAINT fk_ar_personal
-        FOREIGN KEY (id_personal)
-        REFERENCES personal(id_personal),
+    CONSTRAINT fk_rs_staff
+        FOREIGN KEY (staff_id)
+        REFERENCES staff(staff_id),
 
-    CONSTRAINT fk_ar_servicio
-        FOREIGN KEY (id_servicio)
-        REFERENCES servicio(id_servicio)
+    CONSTRAINT fk_rs_service
+        FOREIGN KEY (service_id)
+        REFERENCES service(service_id)
 );
 
 -- Recurring schedule days table
-CREATE TABLE agenda_recurrente_dia (
-    id_agenda_recurrente INT NOT NULL,
-    dia_semana VARCHAR(20) NOT NULL,
+CREATE TABLE recurring_schedule_day (
+    recurring_schedule_id INT NOT NULL,
+	
+    weekday VARCHAR(20) NOT NULL,
 
-    PRIMARY KEY (id_agenda_recurrente, dia_semana),
+    PRIMARY KEY (recurring_schedule_id, weekday),
 
-    CONSTRAINT fk_ard_agenda
-        FOREIGN KEY (id_agenda_recurrente)
-        REFERENCES agenda_recurrente(id_agenda_recurrente)
+    CONSTRAINT fk_rsd_schedule
+        FOREIGN KEY (recurring_schedule_id)
+        REFERENCES recurring_schedule(recurring_schedule_id)
 );
 
 -- Add recurring schedule relation to appointments
-ALTER TABLE cita
-ADD COLUMN id_agenda_recurrente INT;
+ALTER TABLE appointment
+ADD COLUMN recurring_schedule_id INT;
 
-ALTER TABLE cita
-ADD CONSTRAINT fk_cita_agenda
-FOREIGN KEY (id_agenda_recurrente)
-REFERENCES agenda_recurrente(id_agenda_recurrente);
+ALTER TABLE appointment
+ADD CONSTRAINT fk_appointment_recurring_schedule
+FOREIGN KEY (recurring_schedule_id)
+REFERENCES recurring_schedule(recurring_schedule_id);
 
 -- Centers table
-CREATE TABLE centro (
-    id_centro SERIAL PRIMARY KEY,
-    nombre VARCHAR(150) NOT NULL,
+CREATE TABLE center (
+    center_id SERIAL PRIMARY KEY,
 	
-    direccion TEXT,
-    horario VARCHAR(150),
-    correo VARCHAR(100),
-    telefono VARCHAR(20),
-    link_ubicacion TEXT
+    center_name VARCHAR(150) NOT NULL,
+	
+    address TEXT,
+    schedule VARCHAR(150),
+	
+    email VARCHAR(100),
+    phone VARCHAR(20),
+	
+    location_link TEXT
 );
 
--- Add center relation to personnel
-ALTER TABLE personal
-ADD COLUMN id_centro INT;
+-- Add center relation to staff
+ALTER TABLE staff
+ADD COLUMN center_id INT;
 
-ALTER TABLE personal
-ADD CONSTRAINT fk_personal_centro
-FOREIGN KEY (id_centro)
-REFERENCES centro(id_centro);
+ALTER TABLE staff
+ADD CONSTRAINT fk_staff_center
+FOREIGN KEY (center_id)
+REFERENCES center(center_id);
 
 -- Website content table
-CREATE TABLE contenido_web (
-    id_contenido_web SERIAL PRIMARY KEY,
-    id_centro INT UNIQUE NOT NULL,
+CREATE TABLE website_content (
+    website_content_id SERIAL PRIMARY KEY,
+	
+    center_id INT UNIQUE NOT NULL,
 
-    sobre_nosotros TEXT,
-    sobre_empatia TEXT,
-    mision TEXT,
+    about_us TEXT,
+    about_empathy TEXT,
+	
+    mission TEXT,
     vision TEXT,
 
-    CONSTRAINT fk_cw_centro
-        FOREIGN KEY (id_centro)
-        REFERENCES centro(id_centro)
+    CONSTRAINT fk_wc_center
+        FOREIGN KEY (center_id)
+        REFERENCES center(center_id)
 );
 
 -- Center values table
-CREATE TABLE valor_centro (
-    id_valor SERIAL PRIMARY KEY,
-    id_centro INT NOT NULL,
+CREATE TABLE center_value (
+    center_value_id SERIAL PRIMARY KEY,
+	
+    center_id INT NOT NULL,
 
-    titulo VARCHAR(100) NOT NULL,
-    descripcion TEXT,
-    orden_visual INT,
+    title VARCHAR(100) NOT NULL,
+    description TEXT,
+	
+    visual_order INT,
 
-    CONSTRAINT fk_valor_centro
-        FOREIGN KEY (id_centro)
-        REFERENCES centro(id_centro)
+    CONSTRAINT fk_center_value_center
+        FOREIGN KEY (center_id)
+        REFERENCES center(center_id)
 );
 
--- Social networks table
-CREATE TABLE red_social (
-    id_red_social SERIAL PRIMARY KEY,
-    id_centro INT NOT NULL,
+-- Social media table
+CREATE TABLE social_media (
+    social_media_id SERIAL PRIMARY KEY,
+	
+    center_id INT NOT NULL,
 
-    nombre_red VARCHAR(100),
-    plataforma VARCHAR(50),
-    link_red_social TEXT NOT NULL,
+    profile_name VARCHAR(100) NOT NULL,
+    platform VARCHAR(50),
+	
+    social_media_link TEXT NOT NULL,
 
-    CONSTRAINT fk_rs_centro
-        FOREIGN KEY (id_centro)
-        REFERENCES centro(id_centro)
+    CONSTRAINT fk_social_media_center
+        FOREIGN KEY (center_id)
+        REFERENCES center(center_id)
 );
 
 -- Facilities table
-CREATE TABLE instalacion (
-    id_instalacion SERIAL PRIMARY KEY,
-    id_centro INT NOT NULL,
+CREATE TABLE facility (
+    facility_id SERIAL PRIMARY KEY,
+	
+    center_id INT NOT NULL,
 
-    titulo VARCHAR(100),
-    descripcion TEXT,
-    url_imagen_instalacion TEXT,
+    title VARCHAR(100) NOT NULL,
 
-    CONSTRAINT fk_inst_centro
-        FOREIGN KEY (id_centro)
-        REFERENCES centro(id_centro)
+    description TEXT,
+	
+    facility_image_url TEXT,
+
+    CONSTRAINT fk_facility_center
+        FOREIGN KEY (center_id)
+        REFERENCES center(center_id)
 );
 
--- Contact requests table
-CREATE TABLE solicitud_consulta (
-    id_solicitud_consulta SERIAL PRIMARY KEY,
-    id_centro INT NOT NULL,
+-- Consultation requests table
+CREATE TABLE consultation_request (
+    consultation_request_id SERIAL PRIMARY KEY,
+	
+    center_id INT NOT NULL,
 
-    nombre_solicitante VARCHAR(100) NOT NULL,
-    celular VARCHAR(20),
-    nombre_paciente VARCHAR(100),
-    edad_paciente INT,
-    motivo_consulta TEXT,
+    applicant_name VARCHAR(100) NOT NULL,	
+    cellphone VARCHAR(20),
+    
+	patient_name VARCHAR(100),
+    patient_age INT,
+    
+	consultation_reason TEXT,
 
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_sc_centro
-        FOREIGN KEY (id_centro)
-        REFERENCES centro(id_centro)
+    CONSTRAINT fk_consultation_request_center
+        FOREIGN KEY (center_id)
+        REFERENCES center(center_id)
 );

@@ -9,22 +9,22 @@
 -- STATUS VALIDATIONS
 -- =====================================================
 
-ALTER TABLE usuario
-ADD CONSTRAINT chk_usuario_estado
-CHECK (estado IN ('Activo', 'Inactivo'));
+ALTER TABLE users
+ADD CONSTRAINT chk_users_status
+CHECK (status IN ('Activo', 'Inactivo'));
 
-ALTER TABLE personal
-ADD CONSTRAINT chk_personal_estado
-CHECK (estado_actual IN ('Activo', 'Inactivo'));
+ALTER TABLE staff
+ADD CONSTRAINT chk_staff_status
+CHECK (current_status IN ('Activo', 'Inactivo'));
 
-ALTER TABLE paciente
-ADD CONSTRAINT chk_paciente_estado
-CHECK (estado_actual IN ('Activo', 'Inactivo'));
+ALTER TABLE patient
+ADD CONSTRAINT chk_patient_status
+CHECK (current_status IN ('Activo', 'Inactivo'));
 
-ALTER TABLE cita
-ADD CONSTRAINT chk_cita_estado
+ALTER TABLE appointment
+ADD CONSTRAINT chk_appointment_status
 CHECK (
-    estado IN (
+    status IN (
         'Pendiente',
         'Confirmada',
         'Cancelada',
@@ -33,10 +33,10 @@ CHECK (
     )
 );
 
-ALTER TABLE agenda_recurrente
-ADD CONSTRAINT chk_agenda_estado
+ALTER TABLE recurring_schedule
+ADD CONSTRAINT chk_recurring_schedule_status
 CHECK (
-    estado IN (
+    status IN (
         'Activo',
         'Pausado',
         'Finalizado',
@@ -50,13 +50,13 @@ CHECK (
 -- TIME VALIDATIONS
 -- =====================================================
 
-ALTER TABLE cita
-ADD CONSTRAINT chk_cita_horario
-CHECK (hora_fin > hora_inicio);
+ALTER TABLE appointment
+ADD CONSTRAINT chk_appointment_time
+CHECK (end_time > start_time);
 
-ALTER TABLE agenda_recurrente
-ADD CONSTRAINT chk_agenda_horario
-CHECK (hora_fin > hora_inicio);
+ALTER TABLE recurring_schedule
+ADD CONSTRAINT chk_recurring_schedule_time
+CHECK (end_time > start_time);
 
 
 
@@ -64,13 +64,13 @@ CHECK (hora_fin > hora_inicio);
 -- NUMERIC VALIDATIONS
 -- =====================================================
 
-ALTER TABLE solicitud_consulta
-ADD CONSTRAINT chk_solicitud_edad
-CHECK (edad_paciente IS NULL OR edad_paciente >= 0);
+ALTER TABLE consultation_request
+ADD CONSTRAINT chk_consultation_request_age
+CHECK (patient_age IS NULL OR patient_age >= 0);
 
-ALTER TABLE valor_centro
-ADD CONSTRAINT chk_valor_orden
-CHECK (orden_visual IS NULL OR orden_visual > 0);
+ALTER TABLE center_value
+ADD CONSTRAINT chk_center_value_order
+CHECK (visual_order IS NULL OR visual_order > 0);
 
 
 
@@ -78,10 +78,10 @@ CHECK (orden_visual IS NULL OR orden_visual > 0);
 -- ENUM-LIKE TEXT VALIDATIONS
 -- =====================================================
 
-ALTER TABLE agenda_recurrente_dia
-ADD CONSTRAINT chk_agenda_dia
+ALTER TABLE recurring_schedule_day
+ADD CONSTRAINT chk_recurring_schedule_weekday
 CHECK (
-    dia_semana IN (
+    weekday IN (
         'Lunes',
         'Martes',
         'Miércoles',
@@ -98,9 +98,9 @@ CHECK (
 -- DATE VALIDATIONS
 -- =====================================================
 
-ALTER TABLE agenda_recurrente
-ADD CONSTRAINT chk_agenda_fechas
+ALTER TABLE recurring_schedule
+ADD CONSTRAINT chk_recurring_schedule_dates
 CHECK (
-    fecha_fin IS NULL
-    OR fecha_fin >= fecha_inicio
+    end_date IS NULL
+    OR end_date >= start_date
 );

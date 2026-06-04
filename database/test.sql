@@ -8,49 +8,50 @@ SELECT current_database();
 SELECT 1;
 
 -- Core tables
-SELECT * FROM rol;
-SELECT * FROM usuario;
-SELECT * FROM personal;
+SELECT * FROM roles;
+SELECT * FROM users;
+SELECT * FROM staff;
 
 -- Previous role tests
 /*
-INSERT INTO rol (nombre_rol) VALUES
+INSERT INTO roles (role_name) VALUES
 ('Administrador'),
 ('Terapeuta Socio'),
 ('Terapeuta No Socio');
 
-DELETE FROM rol
-WHERE nombre_rol IN ('Administrador', 'Terapeuta Socio', 'Terapeuta No Socio');
+DELETE FROM roles
+WHERE role_name IN ('Administrador', 'Terapeuta Socio', 'Terapeuta No Socio');
 */
 
 -- Dangerous: removes table structure
--- DROP TABLE personal;
--- DROP TABLE solicitud_consulta;
--- DROP TABLE red_social;
+-- DROP TABLE staff;
+-- DROP TABLE consultation_request;
+-- DROP TABLE social_media;
 
 -- Patients and family relations
-SELECT * FROM paciente;
-SELECT * FROM tutor;
-SELECT * FROM paciente_tutor;
+SELECT * FROM patient;
+SELECT * FROM guardian;
+SELECT * FROM patient_guardian;
 
 -- Services and therapist assignments
-SELECT * FROM servicio;
-SELECT * FROM personal_servicio;
+SELECT * FROM service;
+SELECT * FROM staff_service;
 
 -- Recurring schedules
-SELECT * FROM agenda_recurrente;
-SELECT * FROM agenda_recurrente_dia;
+SELECT * FROM recurring_schedule;
+SELECT * FROM recurring_schedule_day;
 
 -- Center and website content
-SELECT * FROM centro;
-SELECT * FROM contenido_web;
-SELECT * FROM red_social;
-SELECT * FROM instalacion;
-SELECT * FROM solicitud_consulta;
+SELECT * FROM center;
+SELECT * FROM website_content;
+SELECT * FROM center_value;
+SELECT * FROM social_media;
+SELECT * FROM facility;
+SELECT * FROM consultation_request;
 
 -- Appointments and clinical sessions
-SELECT * FROM cita;
-SELECT * FROM sesion;
+SELECT * FROM appointment;
+SELECT * FROM therapy_session;
 
 -- =====================================================
 -- TEST INSERTIONS
@@ -58,12 +59,12 @@ SELECT * FROM sesion;
 
 /*
 -- Patient
-INSERT INTO paciente (
-    nombres,
-    apellidos,
-    fecha_nacimiento,
-    estado_actual,
-    genero
+INSERT INTO patient (
+    first_name,
+    last_name,
+    birth_date,
+    current_status,
+    gender
 ) VALUES (
     'Juan',
     'Perez',
@@ -72,12 +73,12 @@ INSERT INTO paciente (
     'Masculino'
 );
 
--- Tutor
-INSERT INTO tutor (
-    nombres,
-    apellidos,
-    telefono,
-    correo
+-- Guardian
+INSERT INTO guardian (
+    first_name,
+    last_name,
+    phone,
+    email
 ) VALUES (
     'Maria',
     'Perez',
@@ -85,12 +86,12 @@ INSERT INTO tutor (
     'maria@test.com'
 );
 
--- Patient - Tutor relation
-INSERT INTO paciente_tutor (
-    id_paciente,
-    id_tutor,
-    parentesco,
-    tutor_principal
+-- Patient - Guardian relation
+INSERT INTO patient_guardian (
+    patient_id,
+    guardian_id,
+    relationship,
+    primary_guardian
 ) VALUES (
     1,
     1,
@@ -99,20 +100,20 @@ INSERT INTO paciente_tutor (
 );
 
 -- Service
-INSERT INTO servicio (
-    nombre_servicio,
-    descripcion
+INSERT INTO service (
+    service_name,
+    description
 ) VALUES (
     'Psicología Infantil',
     'Atención psicológica para niños'
 );
 
 -- User
-INSERT INTO usuario (
-    id_rol,
-    correo,
+INSERT INTO users (
+    role_id,
+    email,
     password_hash,
-    estado
+    status
 ) VALUES (
     2,
     'terapeuta@test.com',
@@ -120,15 +121,15 @@ INSERT INTO usuario (
     'Activo'
 );
 
--- Personnel
-INSERT INTO personal (
-    id_usuario,
-    id_centro,
-    nombres,
-    apellidos,
-    tipo_personal,
-    tipo_vinculacion,
-    estado_actual
+-- Staff
+INSERT INTO staff (
+    user_id,
+    center_id,
+    first_name,
+    last_name,
+    staff_type,
+    affiliation_type,
+    current_status
 ) VALUES (
     1,
     1,
@@ -139,25 +140,25 @@ INSERT INTO personal (
     'Activo'
 );
 
--- Personnel - Service relation
-INSERT INTO personal_servicio (
-    id_personal,
-    id_servicio
+-- Staff - Service relation
+INSERT INTO staff_service (
+    staff_id,
+    service_id
 ) VALUES (
     1,
     1
 );
 
 -- Appointment
-INSERT INTO cita (
-    id_paciente,
-    id_personal,
-    id_servicio,
-    fecha,
-    hora_inicio,
-    hora_fin,
-    motivo,
-    estado
+INSERT INTO appointment (
+    patient_id,
+    staff_id,
+    service_id,
+    appointment_date,
+    start_time,
+    end_time,
+    reason,
+    status
 ) VALUES (
     1,
     1,
@@ -169,11 +170,11 @@ INSERT INTO cita (
     'Confirmada'
 );
 
--- Session
-INSERT INTO sesion (
-    id_cita,
-    progreso,
-    observacion
+-- Therapy session
+INSERT INTO therapy_session (
+    appointment_id,
+    progress,
+    observation
 ) VALUES (
     1,
     'Buena adaptación inicial',
@@ -188,35 +189,40 @@ INSERT INTO sesion (
 /*
 -- Patient history
 SELECT 
-    p.nombres,
-    p.apellidos,
-    c.fecha,
-    s.progreso,
-    s.observacion
-FROM paciente p
-JOIN cita c ON p.id_paciente = c.id_paciente
-LEFT JOIN sesion s ON c.id_cita = s.id_cita
-WHERE p.id_paciente = 1;
+    p.first_name,
+    p.last_name,
+    a.appointment_date,
+    ts.progress,
+    ts.observation
+FROM patient p
+JOIN appointment a 
+    ON p.patient_id = a.patient_id
+LEFT JOIN therapy_session ts 
+    ON a.appointment_id = ts.appointment_id
+WHERE p.patient_id = 1;
 
 -- Appointments by therapist
 SELECT
-    per.nombres,
-    per.apellidos,
-    c.fecha,
-    c.hora_inicio,
-    c.estado
-FROM cita c
-JOIN personal per ON c.id_personal = per.id_personal
-WHERE per.id_personal = 1;
+    st.first_name,
+    st.last_name,
+    a.appointment_date,
+    a.start_time,
+    a.status
+FROM appointment a
+JOIN staff st 
+    ON a.staff_id = st.staff_id
+WHERE st.staff_id = 1;
 
 -- Therapist services
 SELECT
-    per.nombres,
-    s.nombre_servicio
-FROM personal per
-JOIN personal_servicio ps ON per.id_personal = ps.id_personal
-JOIN servicio s ON ps.id_servicio = s.id_servicio
-WHERE per.id_personal = 1;
+    st.first_name,
+    s.service_name
+FROM staff st
+JOIN staff_service ss 
+    ON st.staff_id = ss.staff_id
+JOIN service s 
+    ON ss.service_id = s.service_id
+WHERE st.staff_id = 1;
 */
 
 -- =====================================================
@@ -227,22 +233,22 @@ WHERE per.id_personal = 1;
 
 /*
 TRUNCATE TABLE
-    sesion,
-    cita,
-    personal_servicio,
-    paciente_tutor,
-    agenda_recurrente_dia,
-    agenda_recurrente,
-    personal,
-    usuario,
-    servicio,
-    tutor,
-    paciente,
-    contenido_web,
-    valor_centro,
-    red_social,
-    instalacion,
-    solicitud_consulta
+    therapy_session,
+    appointment,
+    staff_service,
+    patient_guardian,
+    recurring_schedule_day,
+    recurring_schedule,
+    staff,
+    users,
+    service,
+    guardian,
+    patient,
+    website_content,
+    center_value,
+    social_media,
+    facility,
+    consultation_request
 RESTART IDENTITY CASCADE;
 */
 
@@ -254,11 +260,11 @@ RESTART IDENTITY CASCADE;
 
 /*
 -- Invalid user status
-INSERT INTO usuario (
-    id_rol,
-    correo,
+INSERT INTO users (
+    role_id,
+    email,
     password_hash,
-    estado
+    status
 ) VALUES (
     2,
     'badstatus@test.com',
@@ -269,15 +275,15 @@ INSERT INTO usuario (
 
 /*
 -- Invalid appointment time range
-INSERT INTO cita (
-    id_paciente,
-    id_personal,
-    id_servicio,
-    fecha,
-    hora_inicio,
-    hora_fin,
-    motivo,
-    estado
+INSERT INTO appointment (
+    patient_id,
+    staff_id,
+    service_id,
+    appointment_date,
+    start_time,
+    end_time,
+    reason,
+    status
 ) VALUES (
     1,
     1,
@@ -292,15 +298,15 @@ INSERT INTO cita (
 
 /*
 -- Invalid appointment status
-INSERT INTO cita (
-    id_paciente,
-    id_personal,
-    id_servicio,
-    fecha,
-    hora_inicio,
-    hora_fin,
-    motivo,
-    estado
+INSERT INTO appointment (
+    patient_id,
+    staff_id,
+    service_id,
+    appointment_date,
+    start_time,
+    end_time,
+    reason,
+    status
 ) VALUES (
     1,
     1,
@@ -315,13 +321,13 @@ INSERT INTO cita (
 
 /*
 -- Negative age
-INSERT INTO solicitud_consulta (
-    id_centro,
-    nombre_solicitante,
-    celular,
-    nombre_paciente,
-    edad_paciente,
-    motivo_consulta
+INSERT INTO consultation_request (
+    center_id,
+    applicant_name,
+    cellphone,
+    patient_name,
+    patient_age,
+    consultation_reason
 ) VALUES (
     1,
     'Maria',
@@ -334,15 +340,15 @@ INSERT INTO solicitud_consulta (
 
 /*
 -- Invalid recurring schedule dates
-INSERT INTO agenda_recurrente (
-    id_paciente,
-    id_personal,
-    id_servicio,
-    hora_inicio,
-    hora_fin,
-    fecha_inicio,
-    fecha_fin,
-    estado
+INSERT INTO recurring_schedule (
+    patient_id,
+    staff_id,
+    service_id,
+    start_time,
+    end_time,
+    start_date,
+    end_date,
+    status
 ) VALUES (
     1,
     1,
@@ -361,21 +367,21 @@ INSERT INTO agenda_recurrente (
 
 /*
 TRUNCATE TABLE
-    sesion,
-    cita,
-    personal_servicio,
-    paciente_tutor,
-    agenda_recurrente_dia,
-    agenda_recurrente,
-    personal,
-    usuario,
-    servicio,
-    tutor,
-    paciente,
-    contenido_web,
-    valor_centro,
-    red_social,
-    instalacion,
-    solicitud_consulta
+    therapy_session,
+    appointment,
+    staff_service,
+    patient_guardian,
+    recurring_schedule_day,
+    recurring_schedule,
+    staff,
+    users,
+    service,
+    guardian,
+    patient,
+    website_content,
+    center_value,
+    social_media,
+    facility,
+    consultation_request
 RESTART IDENTITY CASCADE;
 */

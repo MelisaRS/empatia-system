@@ -1,2 +1,2 @@
--- Crear base de datos del sistema Empatia
+-- Create Empatia system database
 CREATE DATABASE empatia_db;

@@ -4,18 +4,18 @@
 -- =====================================================
 
 -- Default system roles
-INSERT INTO rol (nombre_rol) VALUES
+INSERT INTO roles (role_name) VALUES
 ('Administrador'),
 ('Terapeuta');
 
 -- Main center information
-INSERT INTO centro (
-    nombre,
-    direccion,
-    horario,
-    correo,
-    telefono,
-    link_ubicacion
+INSERT INTO center (
+    center_name,
+    address,
+    schedule,
+    email,
+    phone,
+    location_link
 ) VALUES (
     'Empatía - Espacio Multidisciplinario',
     'Avenida del Ejército #5, Cochabamba, Bolivia',
