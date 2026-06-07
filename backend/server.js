@@ -38,9 +38,9 @@ app.get('/health-db', async (req, res) => {
   }
 })
 
-///////
-// CRUD - USER
-////////
+//////////////////
+// CRUD - USER //
+/////////////////
 
 app.get('/users', async (req, res) => {
   try {
@@ -162,9 +162,9 @@ app.delete('/users/:id', async (req, res) => {
   }
 })
 
-////////////
-// PATIENTS/
-////////////
+/////////////////////
+// CRUD - PATIENTS //
+/////////////////////
 
 app.get('/patients', async (req, res) => {
   try {
@@ -181,23 +181,138 @@ app.get('/patients', async (req, res) => {
   }
 })
 
-app.get('/patients-structure', async (req, res) => {
+app.post('/patients', async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT column_name, data_type
-      FROM information_schema.columns
-      WHERE table_name = 'patient'
-    `)
+    const {
+      first_name,
+      last_name,
+      birth_date,
+      current_status,
+      gender
+    } = req.body
 
-    res.json(result.rows)
+    const result = await pool.query(
+      `
+      INSERT INTO patient (
+        first_name,
+        last_name,
+        birth_date,
+        current_status,
+        gender
+      )
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+      `,
+      [
+        first_name,
+        last_name,
+        birth_date,
+        current_status,
+        gender
+      ]
+    )
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Patient created successfully',
+      patient: result.rows[0]
+    })
+
   } catch (error) {
     console.error(error)
 
     res.status(500).json({
-      error: 'Error fetching table structure'
+      status: 'error',
+      message: 'Error creating patient'
     })
   }
 })
+
+app.put('/patients/:id', async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const {
+      first_name,
+      last_name,
+      birth_date,
+      current_status,
+      gender
+    } = req.body
+
+    const result = await pool.query(
+      `
+      UPDATE patient
+      SET
+        first_name = $1,
+        last_name = $2,
+        birth_date = $3,
+        current_status = $4,
+        gender = $5
+      WHERE patient_id = $6
+      RETURNING *
+      `,
+      [
+        first_name,
+        last_name,
+        birth_date,
+        current_status,
+        gender,
+        id
+      ]
+    )
+
+    res.json({
+      status: 'success',
+      message: 'Patient updated successfully',
+      patient: result.rows[0]
+    })
+
+  } catch (error) {
+    console.error(error)
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Error updating patient'
+    })
+  }
+})
+
+app.get('/patients/search/:text', async (req, res) => {
+  try {
+    const { text } = req.params
+
+    const result = await pool.query(
+      `
+      SELECT *
+      FROM patient
+      WHERE
+        first_name ILIKE $1
+        OR last_name ILIKE $1
+      ORDER BY patient_id ASC
+      `,
+      [`%${text}%`]
+    )
+
+    res.json({
+      status: 'success',
+      results: result.rows.length,
+      patients: result.rows
+    })
+
+  } catch (error) {
+    console.error(error)
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Error searching patients'
+    })
+  }
+})
+
+/////////////////////
+// 
+/////////////////////
 
 pool.query('SELECT NOW()', (err, result) => {
   if (err) {
