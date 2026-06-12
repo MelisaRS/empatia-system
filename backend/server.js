@@ -1,4 +1,6 @@
 const express = require('express')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
 
 const pool = require('./db')
 
@@ -310,6 +312,74 @@ app.get('/patients/search/:text', async (req, res) => {
   }
 })
 
+
+/////////////////////
+// LOGIN
+/////////////////////
+
+app.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body
+
+    const result = await pool.query(
+      `
+      SELECT *
+      FROM users
+      WHERE email = $1
+      `,
+      [email]
+    )
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Invalid credentials'
+      })
+    }
+
+    const user = result.rows[0]
+
+    const isValidPassword = await bcrypt.compare(
+      password,
+      user.password_hash
+    )
+
+    if (!isValidPassword) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Invalid credentials'
+      })
+    }
+
+    const token = jwt.sign(
+      {
+        user_id: user.user_id,
+        email: user.email,
+        role_id: user.role_id
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: '1h'
+      }
+    )
+
+    res.json({
+      status: 'success',
+      message: 'Login successful',
+      token
+    })
+
+  } catch (error) {
+    console.error(error)
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Login failed'
+    })
+  }
+})
+
+
 /////////////////////
 // 
 /////////////////////
@@ -326,3 +396,15 @@ pool.query('SELECT NOW()', (err, result) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+
+//////////////
+/// TEMPORAL
+///////////////
+
+// Esta comentado, pero borrarlo en un futuro cuando login este terminado
+/*
+bcrypt.hash('123456', 10)
+  .then(hash => {
+    console.log(hash)
+  })
+*/
