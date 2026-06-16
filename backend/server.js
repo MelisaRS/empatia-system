@@ -10,6 +10,51 @@ app.use(express.json())
 
 const PORT = 3000
 
+//////////////////////////////
+// MIDDLEWARE AUTHORIZATION ///
+//////////////////////////////
+
+const authMiddleware = (req, res, next) => {
+  try {
+
+    const authHeader = req.headers.authorization
+
+    if (!authHeader) {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Access token required'
+      })
+    }
+
+    const token = authHeader.split(' ')[1]
+
+    jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    )
+
+    next()
+
+  } catch (error) {
+
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Token expired'
+      })
+    }
+
+    return res.status(401).json({
+      status: 'error',
+      message: 'Invalid token'
+    })
+  }
+}
+
+/////////////
+// ROUTERS //
+/////////////
+
 app.get('/', (req, res) => {
   res.send('Express server running')
 })
@@ -168,7 +213,7 @@ app.delete('/users/:id', async (req, res) => {
 // CRUD - PATIENTS //
 /////////////////////
 
-app.get('/patients', async (req, res) => {
+app.get('/patients', authMiddleware, async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM patient')
 
