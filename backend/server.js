@@ -51,6 +51,10 @@ const authMiddleware = (req, res, next) => {
   }
 }
 
+/////////////////
+app.use('/patients', authMiddleware)
+////////////////
+
 /////////////
 // ROUTERS //
 /////////////
@@ -213,7 +217,7 @@ app.delete('/users/:id', async (req, res) => {
 // CRUD - PATIENTS //
 /////////////////////
 
-app.get('/patients', authMiddleware, async (req, res) => {
+app.get('/patients', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM patient')
 
