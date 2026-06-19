@@ -51,8 +51,9 @@ const authMiddleware = (req, res, next) => {
   }
 }
 
-/////////////////
+/////////PROTECCIONES DE ROUTERS (RUTAS)////////
 app.use('/patients', authMiddleware)
+app.use('/appointments', authMiddleware)
 ////////////////
 
 /////////////
@@ -457,3 +458,172 @@ bcrypt.hash('123456', 10)
     console.log(hash)
   })
 */
+
+/////////////////////////
+// CRUD - APPOINTMENTS //
+/////////////////////////
+
+app.get('/appointments', async (req, res) => {
+  try {
+
+    const result = await pool.query(`
+      SELECT *
+      FROM appointment
+      ORDER BY appointment_id ASC
+    `)
+
+    res.json(result.rows)
+
+  } catch (error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Error fetching appointments'
+    })
+
+  }
+})
+
+app.post('/appointments', async (req, res) => {
+  try {
+
+    const {
+      patient_id,
+      staff_id,
+      service_id,
+      appointment_date,
+      start_time,
+      end_time,
+      reason,
+      status
+    } = req.body
+
+    const result = await pool.query(`
+      INSERT INTO appointment (
+        patient_id,
+        staff_id,
+        service_id,
+        appointment_date,
+        start_time,
+        end_time,
+        reason,
+        status
+      )
+      VALUES (
+        $1,$2,$3,$4,$5,$6,$7,$8
+      )
+      RETURNING *
+    `,
+    [
+      patient_id,
+      staff_id,
+      service_id,
+      appointment_date,
+      start_time,
+      end_time,
+      reason,
+      status
+    ])
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Appointment created successfully',
+      appointment: result.rows[0]
+    })
+
+  } catch (error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Error creating appointment'
+    })
+
+  }
+})
+
+app.put('/appointments/:id', async (req, res) => {
+  try {
+
+    const { id } = req.params
+
+    const {
+      appointment_date,
+      start_time,
+      end_time
+    } = req.body
+
+    const result = await pool.query(`
+      UPDATE appointment
+      SET
+        appointment_date = $1,
+        start_time = $2,
+        end_time = $3
+      WHERE appointment_id = $4
+      RETURNING *
+    `,
+    [
+      appointment_date,
+      start_time,
+      end_time,
+      id
+    ])
+
+    res.json({
+      status: 'success',
+      message: 'Appointment rescheduled successfully',
+      appointment: result.rows[0]
+    })
+
+  } catch (error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Error rescheduling appointment'
+    })
+
+  }
+})
+
+app.put('/appointments/:id/cancel', async (req, res) => {
+  try {
+
+    const { id } = req.params
+
+    const result = await pool.query(`
+      UPDATE appointment
+      SET status = 'Cancelada'
+      WHERE appointment_id = $1
+      RETURNING *
+    `,
+    [id])
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Appointment not found'
+      })
+    }
+
+    res.json({
+      status: 'success',
+      message: 'Appointment cancelled successfully',
+      appointment: result.rows[0]
+    })
+
+  } catch (error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Error cancelling appointment'
+    })
+
+  }
+})
