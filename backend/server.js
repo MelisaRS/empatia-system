@@ -54,6 +54,7 @@ const authMiddleware = (req, res, next) => {
 /////////PROTECCIONES DE ROUTERS (RUTAS)////////
 app.use('/patients', authMiddleware)
 app.use('/appointments', authMiddleware)
+app.use('/therapy-sessions', authMiddleware)
 ////////////////
 
 /////////////
@@ -623,6 +624,148 @@ app.put('/appointments/:id/cancel', async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Error cancelling appointment'
+    })
+
+  }
+})
+
+/////////////////////////
+// history //
+/////////////////////////
+
+app.post('/therapy-sessions', async (req, res) => {
+  try {
+
+    const {
+      appointment_id,
+      progress,
+      observation
+    } = req.body
+
+    // 1. Verify appointment exists
+
+    const appointmentResult = await pool.query(`
+      SELECT *
+      FROM appointment
+      WHERE appointment_id = $1
+    `,
+    [appointment_id])
+
+    if (appointmentResult.rows.length === 0) {
+      return res.status(404).json({
+        status: 'error',
+        message: 'Appointment not found'
+      })
+    }
+
+    // 2. Verify appointment is not cancelled
+
+    const appointment = appointmentResult.rows[0]
+
+    if (appointment.status === 'Cancelada') {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Cannot register a session for a cancelled appointment'
+      })
+    }
+
+    // 3. Verify session does not already exist
+
+    const sessionResult = await pool.query(`
+      SELECT *
+      FROM therapy_session
+      WHERE appointment_id = $1
+    `,
+    [appointment_id])
+
+    if (sessionResult.rows.length > 0) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Therapy session already registered for this appointment',
+        session: sessionResult.rows[0]
+      })
+    }
+
+    // 4. Create session
+
+    const result = await pool.query(`
+      INSERT INTO therapy_session (
+        appointment_id,
+        progress,
+        observation
+      )
+      VALUES (
+        $1,
+        $2,
+        $3
+      )
+      RETURNING *
+    `,
+    [
+      appointment_id,
+      progress,
+      observation
+    ])
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Therapy session registered successfully',
+      session: result.rows[0]
+    })
+
+  } catch (error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Error registering therapy session'
+    })
+
+  }
+})
+
+////////////////////////////////
+
+app.get('/patients/:id/history', async (req, res) => {
+  try {
+
+    const { id } = req.params
+
+    const result = await pool.query(`
+      SELECT
+        ts.therapy_session_id,
+        ts.progress,
+        ts.observation,
+        ts.registered_at,
+
+        a.appointment_date,
+        a.start_time,
+        a.end_time
+
+      FROM therapy_session ts
+
+      INNER JOIN appointment a
+        ON ts.appointment_id = a.appointment_id
+
+      WHERE a.patient_id = $1
+
+      ORDER BY a.appointment_date ASC
+    `,
+    [id])
+
+    res.json({
+      status: 'success',
+      history: result.rows
+    })
+
+  } catch (error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Error fetching patient history'
     })
 
   }
