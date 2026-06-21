@@ -52,10 +52,11 @@ const authMiddleware = (req, res, next) => {
 }
 
 /////////PROTECCIONES DE ROUTERS (RUTAS)////////
+app.use('/users', authMiddleware)
 app.use('/patients', authMiddleware)
 app.use('/appointments', authMiddleware)
 app.use('/therapy-sessions', authMiddleware)
-////////////////
+///////////////////////////////////////////////
 
 /////////////
 // ROUTERS //
@@ -103,7 +104,7 @@ app.get('/users', async (req, res) => {
     `)
 
     res.json(result.rows)
-    console.log(result.rows)
+    //console.log(result.rows)
 
   } catch (error) {
     console.error(error)
@@ -117,7 +118,13 @@ app.get('/users', async (req, res) => {
 
 app.post('/users', async (req, res) => {
   try {
-    const { role_id, email, password_hash, status } = req.body
+
+    const { role_id, email, password, status } = req.body
+
+    const password_hash = await bcrypt.hash(
+      password,
+      10
+    )
 
     const result = await pool.query(
       `
@@ -363,6 +370,51 @@ app.get('/patients/search/:text', async (req, res) => {
   }
 })
 
+////////////////////////////////
+
+app.get('/patients/:id/history', async (req, res) => {
+  try {
+
+    const { id } = req.params
+
+    const result = await pool.query(`
+      SELECT
+        ts.therapy_session_id,
+        ts.progress,
+        ts.observation,
+        ts.registered_at,
+
+        a.appointment_date,
+        a.start_time,
+        a.end_time
+
+      FROM therapy_session ts
+
+      INNER JOIN appointment a
+        ON ts.appointment_id = a.appointment_id
+
+      WHERE a.patient_id = $1
+
+      ORDER BY a.appointment_date ASC
+    `,
+    [id])
+
+    res.json({
+      status: 'success',
+      history: result.rows
+    })
+
+  } catch (error) {
+
+    console.error(error)
+
+    res.status(500).json({
+      status: 'error',
+      message: 'Error fetching patient history'
+    })
+
+  }
+})
 
 /////////////////////
 // LOGIN
@@ -720,52 +772,6 @@ app.post('/therapy-sessions', async (req, res) => {
     res.status(500).json({
       status: 'error',
       message: 'Error registering therapy session'
-    })
-
-  }
-})
-
-////////////////////////////////
-
-app.get('/patients/:id/history', async (req, res) => {
-  try {
-
-    const { id } = req.params
-
-    const result = await pool.query(`
-      SELECT
-        ts.therapy_session_id,
-        ts.progress,
-        ts.observation,
-        ts.registered_at,
-
-        a.appointment_date,
-        a.start_time,
-        a.end_time
-
-      FROM therapy_session ts
-
-      INNER JOIN appointment a
-        ON ts.appointment_id = a.appointment_id
-
-      WHERE a.patient_id = $1
-
-      ORDER BY a.appointment_date ASC
-    `,
-    [id])
-
-    res.json({
-      status: 'success',
-      history: result.rows
-    })
-
-  } catch (error) {
-
-    console.error(error)
-
-    res.status(500).json({
-      status: 'error',
-      message: 'Error fetching patient history'
     })
 
   }
