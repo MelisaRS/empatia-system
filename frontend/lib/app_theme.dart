@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'colors.dart';
 
 class AppTheme {
   static ThemeData get lightTheme {
     return ThemeData(
       colorScheme: ColorScheme.light(
-        primary: Color(0xFF75C9D7),
-        secondary: Color(0xFFFAB117),
-        tertiary: Color(0xFFD9669A),
+        primary: AppColors.primary500,
+        secondary: AppColors.secondary500,
+        tertiary: AppColors.tertiary500,
       ),
+
       textTheme: TextTheme(
         displaySmall: GoogleFonts.delaGothicOne(
           fontSize: 24,
