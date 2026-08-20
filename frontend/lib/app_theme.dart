@@ -12,12 +12,14 @@ class AppTheme {
       ),
 
       textTheme: TextTheme(
+        // Display — Dela Gothic One
         displaySmall: GoogleFonts.delaGothicOne(
           fontSize: 24,
           fontWeight: FontWeight.w400,
           height: 32 / 24,
         ),
 
+        // Headings — Poppins
         headlineLarge: GoogleFonts.poppins(
           fontSize: 22,
           fontWeight: FontWeight.w600,
@@ -34,6 +36,7 @@ class AppTheme {
           height: 24 / 18,
         ),
 
+        // Body — Open Sans
         bodyLarge: GoogleFonts.openSans(
           fontSize: 16,
           fontWeight: FontWeight.w400,
