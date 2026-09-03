@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'core/routing/app_router.dart';
 import 'core/theme/app_theme.dart';
 
 void main() {
@@ -14,6 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: AppTheme.lightTheme,
+      routes: AppRouter.routes,
       // This is the theme of your application.
       //
       // TRY THIS: Try running your application with "flutter run". You'll see
@@ -29,7 +31,7 @@ class MyApp extends StatelessWidget {
       //
       // This works for code too, not just values: Most code changes can be
       // tested with just a hot reload.
-      home: const MyHomePage(title: 'Empatia - CPI AAA'),
+      //home: const MyHomePage(title: 'Empatia - CPI AAA'),
     );
   }
 }
