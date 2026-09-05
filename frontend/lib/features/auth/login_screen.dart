@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/routing/app_router.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
@@ -15,7 +14,7 @@ class LoginScreen extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, AppRouter.dashboard);
+                Navigator.pop(context);
               },
               child: const Text('Volver a Dashboard'),
             ),

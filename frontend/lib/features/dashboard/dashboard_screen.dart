@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/routing/app_router.dart';
+import '../../core/routing/app_routes.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -15,7 +15,7 @@ class DashboardScreen extends StatelessWidget {
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, AppRouter.login);
+                Navigator.pushNamed(context, AppRoutes.login);
               },
               child: const Text('Ir a Login'),
             ),
